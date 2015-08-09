@@ -2,6 +2,7 @@
   (:gen-class))
 
 (defn choose-initial-centroids
+  "Randomly choose k centroids from vectors"
   ([l k] (choose-initial-centroids l k (vector)))
   ([l k c]
     (cond
