@@ -1,0 +1,20 @@
+language: clojure
+
+env:
+  global:
+     - GH_REF: github.com/hscells/hscells.github.io.git
+     - GH_TOKEN: nPLXTv9KKAXKYxMhxIK33FauLP89TBwNYYmeElSzpCbsQFKSfH07v/NRXK+hOohPrmoE1y+eYA1jo4apTMZV1jZf8LYhgs0bDeD6g5sNXc5VErN6lgBWEL4aFViJbuXZEQARbxxiuJwBCmNHUUChZUQpKMEuS4nKPWlU8ng5jvMUTbt3Eppc58pcNQrMEq4mZA2NJRUixo+EjdCQxszL5L/szpBdcKGpO/5CMNdukHPLkGGGQpGDVD0gGyjar8X6kkEmwgDd0OuWdlKGT1Wir3qb0vx31ONDlxyioZcbQ1LmwsALB2y9PbmeCeVddkaV83lRlszNsumK5iD37FfOikQTkYd4b3UzswJJAn4wO5JeH/GkUr1S/VQO4zYXsCw+dYnThBjD5/iTqGNL/6zxN55DJFhjr4IZ/EdyI2d5QnsXhsiaiMPQMR4Dn7/WP7DcL00SJCh12lFPxXnKqQ4OC7iwcXDHnhQtnJX1BywV3t9ykV1O7dTNF+PpQA/zfm7Ye1YHDKY55acyBvHcAspPEH3jZN15BlBYHGcOwWPYV1V4Con3mz/q+KD7dyZjWCNSjmo3AGFeQyNFqi1v3SjAYHIgxTY6lp7BWuz2xcNrsaYGLhE1NjN2KRm3EijDSfDg45zPd0mhwdRwQTW0zuOGbRpTmImnWrw15u7fANMWlB8=
+     - secure: nPLXTv9KKAXKYxMhxIK33FauLP89TBwNYYmeElSzpCbsQFKSfH07v/NRXK+hOohPrmoE1y+eYA1jo4apTMZV1jZf8LYhgs0bDeD6g5sNXc5VErN6lgBWEL4aFViJbuXZEQARbxxiuJwBCmNHUUChZUQpKMEuS4nKPWlU8ng5jvMUTbt3Eppc58pcNQrMEq4mZA2NJRUixo+EjdCQxszL5L/szpBdcKGpO/5CMNdukHPLkGGGQpGDVD0gGyjar8X6kkEmwgDd0OuWdlKGT1Wir3qb0vx31ONDlxyioZcbQ1LmwsALB2y9PbmeCeVddkaV83lRlszNsumK5iD37FfOikQTkYd4b3UzswJJAn4wO5JeH/GkUr1S/VQO4zYXsCw+dYnThBjD5/iTqGNL/6zxN55DJFhjr4IZ/EdyI2d5QnsXhsiaiMPQMR4Dn7/WP7DcL00SJCh12lFPxXnKqQ4OC7iwcXDHnhQtnJX1BywV3t9ykV1O7dTNF+PpQA/zfm7Ye1YHDKY55acyBvHcAspPEH3jZN15BlBYHGcOwWPYV1V4Con3mz/q+KD7dyZjWCNSjmo3AGFeQyNFqi1v3SjAYHIgxTY6lp7BWuz2xcNrsaYGLhE1NjN2KRm3EijDSfDg45zPd0mhwdRwQTW0zuOGbRpTmImnWrw15u7fANMWlB8=
+
+before_script:
+ - git config --global user.email "harryscells@gmail.com"
+ - git config --global user.name "Travis-CI"
+ - git config --global push.default matching
+
+after_script:
+ - git clone https://github.com/hscells/hscells.github.io.git
+ - lein doc
+ - cd hscells.github.io
+ - git add *
+ - git commit -m "updated k-means javadoc"
+ - git push --force "https://${GH_TOKEN}@${GH_REF}"
