@@ -1,4 +1,4 @@
-(defproject k-means "0.1.0-SNAPSHOT"
+(defproject k-means "0.1"
   :description "Programming assignment for QUT INB375"
   :url ""
   :license {:name "Eclipse Public License"
