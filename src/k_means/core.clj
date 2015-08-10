@@ -17,10 +17,15 @@
 (defn mean
   "Retrieve the mean value of a list"
   [l]
-  (/ (reduce + l) (count l)))
+  (float (/ (reduce + l) (count l))))
 
-(defn mean-vector-centroid
+(defn mean-centroids
   "Calculates the mean for a given centroid"
+  [c l]
+  c)
+
+(defn cluster
+  "take a vector and cluster it via distance"
   [c l]
   c)
 ; (defn centroid)
@@ -42,7 +47,7 @@
     (cond
       (empty? l) g
       :else
-        (recur (rest l) c ())))
+        (recur (rest l) c ()))))
 
 (defn k-means
   "Perform the actual k-means"
@@ -50,11 +55,12 @@
     (k-means l k (choose-initial-centroids l k) (make-array Float/TYPE k)))
   ([l k c g]
     (cond
+      ; These functions aren't actually correct
       (< (count g) (count l)) ; Add in new data to the clusters
-        (recur (rest l) k (mean-centroids c) (cluster g)))
+        (recur (rest l) k (mean-centroids c g) (cluster g l))
       (still-moving? c) ; Keep shifting centroids until equilibrium
-        (recur nil k (mean-centroids c) (cluster g))
-      :else g))
+        (recur nil k (mean-centroids c g) (cluster g l))
+      :else g)))
 
 (defn -main
   "Main function for k-means"
