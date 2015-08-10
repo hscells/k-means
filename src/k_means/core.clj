@@ -9,22 +9,52 @@
       (< k 1) c
       :else (recur l (dec k) (conj c (rand-nth l))))))
 
+(defn still-moving?
+  "Predicate to test if the centroids have not reached equlibrium"
+  [c]
+  true)
+
+(defn mean
+  "Retrieve the mean value of a list"
+  [l]
+  (/ (reduce + l) (count l)))
+
+(defn mean-vector-centroid
+  "Calculates the mean for a given centroid"
+  [c l]
+  c)
 ; (defn centroid)
 
 (defn distance
   "Implements euclidian distance between two vectors"
   ([[p1 p2] [q1 q2]]
     (Math/sqrt (+ (Math/pow (- q1 q2) 2) (Math/pow (- p1 p2) 2)))))
-    ; (->> (map - c1 c2) (map #(* % %)) (reduce +)))))
+    ; (->> (map - c1 c2) (map #(* % %)) (reduce +))))) ; This is a better implementation for when this gets parallelised
 
-; (defn group)
+(defn min-vector
+  "Chooses the smallest vector in a set of vectors"
+  [l]
+  (map distance l))
+
+(defn group
+  "Group each vector based on the distance from each centroid"
+  ([l c g]
+    (cond
+      (empty? l) g
+      :else
+        (recur (rest l) c ())))
 
 (defn k-means
-  "Perform the actual k-means "
+  "Perform the actual k-means"
   ([l k]
-    (k-means l k (choose-initial-centroids l k)))
-  ([l k c]
-    (println c)))
+    (k-means l k (choose-initial-centroids l k) (make-array Float/TYPE k)))
+  ([l k c g]
+    (cond
+      (< (count g) (count l)) ; Add in new data to the clusters
+        (recur (rest l) k (mean-centroids c) (cluster g)))
+      (still-moving? c) ; Keep shifting centroids until equilibrium
+        (recur nil k (mean-centroids c) (cluster g))
+      :else g))
 
 (defn -main
   "Main function for k-means"
