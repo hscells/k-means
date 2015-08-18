@@ -21,13 +21,8 @@
 
 (defn mean-centroids
   "Calculates the mean for a given centroid"
-  [c l]
-  c)
-
-(defn cluster
-  "take a vector and cluster it via distance"
-  [c l]
-  c)
+  [g]
+  g)
 ; (defn centroid)
 
 (defn distance
@@ -35,6 +30,25 @@
   ([[p1 p2] [q1 q2]]
     (Math/sqrt (+ (Math/pow (- q1 q2) 2) (Math/pow (- p1 p2) 2)))))
     ; (->> (map - c1 c2) (map #(* % %)) (reduce +))))) ; This is a better implementation for when this gets parallelised
+
+(defn min-index
+  [c]
+  (.indexOf c (apply min c)))
+
+(defn min-distance
+  "returns the index of the centroid c closest to vecotr v"
+  [c v]
+    (for [i c :let [d (distance i v)]] d))
+
+(defn cluster
+  "take a vector and cluster it via distance"
+  [g l c]
+  (println g)
+  (cond
+    (empty? g) (recur (hash-set (range 0 (count c))) l c)
+    (not-empty l) (recur (conj (first l) (get g (min-index (min-distance c (first l))))) (rest l) c)
+    :else
+    g))
 
 (defn min-vector
   "Chooses the smallest vector in a set of vectors"
@@ -52,17 +66,17 @@
 (defn k-means
   "Perform the actual k-means"
   ([l k]
-    (k-means l k (choose-initial-centroids l k) (make-array Float/TYPE k)))
+    (k-means l k (choose-initial-centroids l k) (hash-set (range 0 k))))
   ([l k c g]
-    (cond
-      ; These functions aren't actually correct
-      (< (count g) (count l)) ; Add in new data to the clusters
-        (recur (rest l) k (mean-centroids c g) (cluster g l))
-      (still-moving? c) ; Keep shifting centroids until equilibrium
-        (recur nil k (mean-centroids c g) (cluster g l))
-      :else g)))
+    (let [g (cluster g l c) c (mean-centroids g)]
+      ; (println g)
+      (cond
+        (still-moving? c) ; Keep shifting centroids until equilibrium
+          ; (recur nil k c g)
+          g
+        :else g))))
 
 (defn -main
   "Main function for k-means"
   [& args]
-  (k-means [[1 2] [3 2] [6 3] [1 8] [9 10] [1 4]] 2))
+  (k-means [[1 2] [3 2] [6 3] [1 8] [9 10] [1 4]] 3))
