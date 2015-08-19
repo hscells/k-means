@@ -17,19 +17,19 @@
 (defn mean
   "Retrieve the mean value of a list"
   [l]
-  (float (/ (reduce + l) (count l))))
+  (/ (reduce + l) (count l)))
 
+;; This is the next method which will be implemented...
 (defn mean-centroids
   "Calculates the mean for a given centroid"
-  [g]
-  g)
-; (defn centroid)
+  ([g] (mean-centroids g []))
+  ([g l]
+    g))
 
 (defn distance
   "Implements euclidian distance between two vectors"
   ([c1 c2]
-    (->> (map - c1 c2) (map #(* % %)) (reduce +)))) ; This is a better implementation for when this gets parallelised
-
+    (->> (map - c1 c2) (map #(* % %)) (reduce +))))
 (defn min-index
   [c]
   (.indexOf c (apply min c)))
@@ -64,14 +64,6 @@
   [l]
   (map distance l))
 
-(defn group
-  "Group each vector based on the distance from each centroid"
-  ([l c g]
-    (cond
-      (empty? l) g
-      :else
-        (recur (rest l) c ()))))
-
 (defn k-means
   "Perform the actual k-means"
   ([l k]
@@ -81,11 +73,10 @@
       ; (println g)
       (cond
         (still-moving? t c) ; Keep shifting centroids until equilibrium
-          ; (recur nil k c g)
-          g
+          (recur l k c g)
         :else g))))
 
 (defn -main
   "Main function for k-means"
   [& args]
-  (let [c (k-means [[1 2] [3 2] [6 3] [1 8] [9 10] [1 4] [56 67] [44 53] [43 54] [43 64] [76 56]] 3)] (println c)))
+  (let [c (k-means [[1 2] [3 2] [6 3] [1 8] [9 10] [1 4] [56 67] [44 53] [43 54] [43 64] [76 56]] 2)] (println c)))
