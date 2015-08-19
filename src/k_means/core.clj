@@ -11,8 +11,8 @@
 
 (defn still-moving?
   "Predicate to test if the centroids have not reached equlibrium"
-  [c]
-  true)
+  [t c]
+  (= t c))
 
 (defn mean
   "Retrieve the mean value of a list"
@@ -27,9 +27,8 @@
 
 (defn distance
   "Implements euclidian distance between two vectors"
-  ([[p1 p2] [q1 q2]]
-    (Math/sqrt (+ (Math/pow (- q1 q2) 2) (Math/pow (- p1 p2) 2)))))
-    ; (->> (map - c1 c2) (map #(* % %)) (reduce +))))) ; This is a better implementation for when this gets parallelised
+  ([c1 c2]
+    (->> (map - c1 c2) (map #(* % %)) (reduce +)))) ; This is a better implementation for when this gets parallelised
 
 (defn min-index
   [c]
@@ -40,13 +39,23 @@
   [c v]
     (for [i c :let [d (distance i v)]] d))
 
+(defn make-vector
+  "create a vector containing n cols"
+  ([n] (make-vector n []))
+  ([n c]
+    (cond
+      (<= n 0) c
+      :else
+        (recur (dec n) (conj c [])))))
+
 (defn cluster
   "take a vector and cluster it via distance"
   [g l c]
-  (println g)
   (cond
-    (empty? g) (recur (hash-set (range 0 (count c))) l c)
-    (not-empty l) (recur (conj (first l) (get g (min-index (min-distance c (first l))))) (rest l) c)
+    (nil? g) (recur (make-vector (count c)) l c)
+    (not-empty l)
+      (let [i (min-index (min-distance c (first l)))]
+        (recur (assoc g i (conj (nth g i) (first l))) (rest l) c))
     :else
     g))
 
@@ -66,12 +75,12 @@
 (defn k-means
   "Perform the actual k-means"
   ([l k]
-    (k-means l k (choose-initial-centroids l k) (hash-set (range 0 k))))
+    (k-means l k (choose-initial-centroids l k) (make-vector k)))
   ([l k c g]
-    (let [g (cluster g l c) c (mean-centroids g)]
+    (let [t c g (cluster g l c) c (mean-centroids g)]
       ; (println g)
       (cond
-        (still-moving? c) ; Keep shifting centroids until equilibrium
+        (still-moving? t c) ; Keep shifting centroids until equilibrium
           ; (recur nil k c g)
           g
         :else g))))
@@ -79,4 +88,4 @@
 (defn -main
   "Main function for k-means"
   [& args]
-  (k-means [[1 2] [3 2] [6 3] [1 8] [9 10] [1 4]] 3))
+  (let [c (k-means [[1 2] [3 2] [6 3] [1 8] [9 10] [1 4] [56 67] [44 53] [43 54] [43 64] [76 56]] 3)] (println c)))
