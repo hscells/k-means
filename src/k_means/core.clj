@@ -12,19 +12,31 @@
 (defn still-moving?
   "Predicate to test if the centroids have not reached equlibrium"
   [t c]
-  (= t c))
+  (not (= t c)))
 
 (defn mean
   "Retrieve the mean value of a list"
   [l]
-  (/ (reduce + l) (count l)))
+  (float (/ (reduce + l) (count l))))
+
+(defn mean-2dvec
+  [v]
+  (let [
+    a (map first v)
+    b (flatten (map rest v))
+    x (float (/ (reduce + a) (count a)))
+    y (float (/ (reduce + b) (count b)))]
+    [x y]))
 
 ;; This is the next method which will be implemented...
 (defn mean-centroids
   "Calculates the mean for a given centroid"
   ([g] (mean-centroids g []))
   ([g l]
-    g))
+    (cond
+      (empty? g) l
+      :else
+        (recur (rest g) (conj l (mean-2dvec (first g)))))))
 
 (defn distance
   "Implements euclidian distance between two vectors"
@@ -66,17 +78,19 @@
 
 (defn k-means
   "Perform the actual k-means"
-  ([l k]
-    (k-means l k (choose-initial-centroids l k) (make-vector k)))
-  ([l k c g]
+  ([l k max-iterations]
+    (k-means l k (choose-initial-centroids l k) (make-vector k) max-iterations))
+  ([l k c g max-iterations]
     (let [t c g (cluster g l c) c (mean-centroids g)]
-      ; (println g)
+      (println t c (= t c))
+      ; (println (still-moving? t c))
       (cond
+        (> 0 max-iterations) g
         (still-moving? t c) ; Keep shifting centroids until equilibrium
-          (recur l k c g)
+          (recur l k c g (dec max-iterations))
         :else g))))
 
 (defn -main
   "Main function for k-means"
   [& args]
-  (let [c (k-means [[1 2] [3 2] [6 3] [1 8] [9 10] [1 4] [56 67] [44 53] [43 54] [43 64] [76 56]] 2)] (println c)))
+  (let [c (k-means [[1 2] [3 2] [6 3] [1 8] [9 10] [1 4] [56 67] [44 53] [43 54] [43 64] [76 56]] 3 100)] (println c)))
