@@ -103,4 +103,6 @@
 (defn -main
   "Main function for k-means"
   [& args]
-  (let [c (k-means (make-vector-rand 5000) 5 100)] (println c)))
+  (let [c (k-means (make-vector-rand 5000) 5 100)]
+    (println c)
+    (spit "k-means.txt" c)))
