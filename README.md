@@ -1,36 +1,21 @@
 # k-means
 
-FIXME: description
+Implementation of the k-means clustering algorithm.
+TBT: Parallelisation!
 
-## Installation
-
-Download from http://example.com/FIXME.
+![cluster](http://i.imgur.com/mr7INW0.png)
 
 ## Usage
 
-FIXME: explanation
-
-    $ java -jar k-means-0.1.0-standalone.jar [args]
-
-## Options
-
-FIXME: listing of options this app accepts.
-
-## Examples
-
-...
+    $ java -jar k-means-X.Y-standalone.jar
 
 ### Bugs
 
-...
+Occasional divide by 0 error (?)
 
-### Any Other Sections
-### That You Think
-### Might be Useful
 
 ## License
 
-Copyright © 2015 FIXME
+Copyright © 2015 Harry Scells
 
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+Distributed under the MIT License.
