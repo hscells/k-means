@@ -51,6 +51,15 @@
   [c v]
     (for [i c :let [d (distance i v)]] d))
 
+(defn make-vector-rand
+  "create a vector containing n cols populated with random data"
+  ([n] (make-vector-rand n []))
+  ([n c]
+  (cond
+    (<= n 0) c
+    :else
+      (recur (dec n) (conj c [(rand-int 5000) (rand-int 5000)])))))
+
 (defn make-vector
   "create a vector containing n cols"
   ([n] (make-vector n []))
@@ -62,14 +71,15 @@
 
 (defn cluster
   "take a vector and cluster it via distance"
-  [g l c]
-  (cond
-    (nil? g) (recur (make-vector (count c)) l c)
-    (not-empty l)
-      (let [i (min-index (min-distance c (first l)))]
-        (recur (assoc g i (conj (nth g i) (first l))) (rest l) c))
-    :else
-    g))
+  ([g l c] (cluster g l c (make-vector (count c))))
+  ([g l c a]
+    (cond
+      (nil? g) (recur (make-vector (count c)) l c (make-vector (count c)))
+      (not-empty l)
+        (let [i (min-index (min-distance c (first l)))]
+          (recur g (rest l) c (assoc a i (conj (nth a i) (first l)))))
+      :else
+      a)))
 
 (defn min-vector
   "Chooses the smallest vector in a set of vectors"
@@ -82,7 +92,7 @@
     (k-means l k (choose-initial-centroids l k) (make-vector k) max-iterations))
   ([l k c g max-iterations]
     (let [t c g (cluster g l c) c (mean-centroids g)]
-      (println t c (= t c))
+      (println c)
       ; (println (still-moving? t c))
       (cond
         (> 0 max-iterations) g
@@ -93,4 +103,4 @@
 (defn -main
   "Main function for k-means"
   [& args]
-  (let [c (k-means [[1 2] [3 2] [6 3] [1 8] [9 10] [1 4] [56 67] [44 53] [43 54] [43 64] [76 56]] 3 100)] (println c)))
+  (let [c (k-means (make-vector-rand 5000) 5 100)] (println c)))
