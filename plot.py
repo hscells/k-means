@@ -13,9 +13,7 @@ s = ast.literal_eval(f)
 fig = plt.figure()
 ax = fig.add_subplot(1, 1, 1)
 
-print s
 for data in s:
-    print data
     x = [i[0] for i in data]
     y = [i[1] for i in data]
     ax.scatter(x, y, color = col())
