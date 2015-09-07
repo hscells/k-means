@@ -42,10 +42,10 @@
         (> 0 max-iterations) g
         (still-moving? t c) ; Keep shifting centroids until equilibrium
           (recur l k c g (dec max-iterations))
-        :else g))))
+        :else (vec g)))))
 
 (defn -main
   "Main function for k-means"
   [& args]
-  (let [c (profile :info :Arithmetic (k-means-p (vector/make-vector-rand 40000) 10 25)) => "Done"]
+  (let [c (profile :info :Arithmetic (k-means-p (vector/make-vector-rand 40000) 5 100)) => "Done"]
     (spit "k-means.txt" c)) (shutdown-agents))
