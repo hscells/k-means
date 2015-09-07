@@ -11,12 +11,15 @@
 
 (defn mean-2dvec
   [v]
-  (let [
-    a (map first v)
-    b (flatten (map rest v))
-    x (float (/ (reduce + a) (count a)))
-    y (float (/ (reduce + b) (count b)))]
-    [x y]))
+  (cond
+    (empty? v) v
+    :else
+      (let [
+        a (map first v)
+        b (flatten (map rest v))
+        x (float (/ (reduce + a) (count a)))
+        y (float (/ (reduce + b) (count b)))]
+        [x y])))
 
 
 (defn mean-centroids
