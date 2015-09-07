@@ -82,7 +82,7 @@
     (cond
       (empty? l) a
       (not-empty l)
-        (let [i (min-index (p :min-distance (min-distance-p c (first l))))]
+        (let [i (min-index (p :min-distance-p (min-distance-p c (first l))))]
           (recur (rest l) c (conj a (first l)))))))
 
 (defn -group-clusters
@@ -98,5 +98,5 @@
   "take a list of vectors and cluster on centroids c via distance in parallel"
   ([l c] (cluster-p l c []))
   ([l c a]
-    (let [clusters (for [i (partition-all (int (/ (count l) (count c))) l) :let [m (p :distance-cluster (future (cluster i c)))]] (deref m))]
-      (-group-clusters clusters))))
+    (let [clusters (for [i (partition-all (int (/ (count l) (count c))) l) :let [m (future (p :cluster (cluster i c)))]] (deref m))]
+      (p :group-clusters (-group-clusters clusters)))))
