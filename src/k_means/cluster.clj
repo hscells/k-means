@@ -4,11 +4,6 @@
   (:require [taoensso.timbre.profiling :as profiling :refer (p profile)])
   (:require [k-means.vector :as vector]))
 
-(defn mean
-  "Retrieve the mean value of a list"
-  [l]
-  (float (/ (reduce + l) (count l))))
-
 (defn mean-2dvec
   [v]
   (cond
@@ -75,22 +70,27 @@
       :else
       a)))
 
-(defn -dist-cluster
-  "perform recursive clustering"
-  ([l c] (-dist-cluster l c []))
+(defn cluster-m
+  "take a list of vectors and cluster on centroids c via distance"
+  ([l c] (cluster l c (vector/make-vector (count c))))
   ([l c a]
     (cond
       (empty? l) a
+      ; otherwise we continue until the list of vectors is empty
       (not-empty l)
-        (let [i (min-index (p :min-distance-p (min-distance-p c (first l))))]
-          (recur (rest l) c (conj a (first l)))))))
+        ; for the vector at the start of the list, choose a centroid which is closest
+        (let [i (min-index (p :min-distance (min-distance-p c (first l))))]
+          ; append the vector to the smallest distance
+          (recur (rest l) c (assoc a i (conj (nth a i) (first l)))))
+      :else
+      a)))
 
-(defn -group-clusters
+(defn group-clusters
   "group a list of cluster groups into one cluster group"
-  ([l] (-group-clusters l (vector/make-vector (count l)) 0))
+  ([l] (group-clusters l (vector/make-vector (count l)) 0))
   ([l a i]
     (cond
-      (empty? l) (pmap first a)
+      (empty? l) (vec (pmap first a))
       :else
         (recur (rest l) (assoc a i (conj (nth a i) (nth (first l) i))) (inc i)))))
 
@@ -98,5 +98,5 @@
   "take a list of vectors and cluster on centroids c via distance in parallel"
   ([l c] (cluster-p l c []))
   ([l c a]
-    (let [clusters (for [i (partition-all (int (/ (count l) (count c))) l) :let [m (future (p :cluster (cluster i c)))]] (deref m))]
-      (p :group-clusters (-group-clusters clusters)))))
+    (let [clusters (for [i (partition-all (int (/ (count l) (count c))) l) :let [m (future (p :cluster (cluster-m i c)))]] (deref m))]
+      (p :group-clusters (group-clusters clusters)))))
