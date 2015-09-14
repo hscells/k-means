@@ -5,7 +5,7 @@
   (:require [k-means.vector :as vector]))
 
 (defn mean-2dvec
-  [v]
+  [^ints v]
   (cond
     (empty? v) v
     :else
@@ -14,8 +14,7 @@
         b (flatten (map rest v))
         x (float (/ (reduce + a) (count a)))
         y (float (/ (reduce + b) (count b)))]
-        [x y])))
-
+        (list x y))))
 
 (defn mean-centroids
   "Calculates the mean for a given centroid"
@@ -26,17 +25,15 @@
       :else
         (recur (rest g) (conj l (p :mean-2dvec (mean-2dvec (first g))))))))
 
+(defn mean-centroids-p
+  "Calculates the mean for a given centroid"
+  [g]
+  (pmap #(p :mean-2dvec (mean-2dvec %)) g))
+
 (defn distance
   "Implements euclidian distance between two vectors"
-  ([c1 c2]
+  ([^ints c1 ^ints c2]
     (->> (map - c1 c2) (map #(* % %)) (reduce +))))
-
-
-(defn distance-p
-  "Implements euclidian distance between two vectors"
-  ([c1 c2]
-    (->> (pmap - c1 c2) (pmap #(* % %)) (reduce +))))
-(def distance-p-m (memoize distance-p))
 
 (defn min-index
   [c]
@@ -46,17 +43,6 @@
   "returns the index of the centroid c closest to vecotr v"
   [c v]
     (for [i c :let [d (distance i v)]] d))
-
-(defn min-distance-p
-  "returns the index of the centroid c closest to vecotr v"
-  [c v]
-    (for [i c :let [d (distance-p-m i v)]] d))
-(def min-distance-p-m (memoize min-distance-p))
-
-(defn min-vector
-  "Chooses the smallest vector in a set of vectors"
-  [l]
-  (map distance l))
 
 (defn cluster
   "take a list of vectors and cluster on centroids c via distance"
@@ -75,14 +61,14 @@
 
 (defn cluster-m
   "take a list of vectors and cluster on centroids c via distance"
-  ([l c] (cluster l c (vector/make-vector (count c))))
+  ([l c] (cluster-m l c (vector/make-list (count c))))
   ([l c a]
     (cond
       (empty? l) a
       ; otherwise we continue until the list of vectors is empty
       (not-empty l)
         ; for the vector at the start of the list, choose a centroid which is closest
-        (let [i (min-index (p :min-distance (min-distance-p-m c (first l))))]
+        (let [i (min-index (p :min-distance (min-distance c (first l))))]
           ; append the vector to the smallest distance
           (recur (rest l) c (assoc a i (conj (nth a i) (first l)))))
       :else
@@ -90,16 +76,15 @@
 
 (defn group-clusters
   "group a list of cluster groups into one cluster group"
-  ([l] (group-clusters l (vector/make-vector (count l)) 0))
-  ([l a i]
+  ([^ints l] (group-clusters l (vector/make-list (count l))))
+  ([^ints l ^ints a]
     (cond
-      (empty? l) (vec (pmap first a))
+      (empty? l) a
       :else
-        (recur (rest l) (assoc a i (conj (nth a i) (nth (first l) i))) (inc i)))))
+        (recur (rest l) (map into (first l) a)))))
 
 (defn cluster-p
   "take a list of vectors and cluster on centroids c via distance in parallel"
-  ([l c] (cluster-p l c []))
-  ([l c a]
+  [^ints l ^floats c]
     (let [clusters (for [i (partition-all (int (/ (count l) (count c))) l) :let [m (future (p :cluster (cluster-m i c)))]] (deref m))]
-      (p :group-clusters (group-clusters clusters)))))
+      (p :group-clusters (group-clusters clusters))))
