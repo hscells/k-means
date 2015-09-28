@@ -47,5 +47,11 @@
 (defn -main
   "Main function for k-means"
   [& args]
-  (let [c (profile :info :Arithmetic (k-means (vector/make-list-rand 5000) 7 15)) => "Done"]
-    (spit "k-means.txt" (vec c))) (shutdown-agents))
+  (cond
+    (= (first args) "seq")
+      (let [c (profile :info :Arithmetic (k-means (vector/make-list-rand 500000) 5 100)) => "Done"]
+        (spit "k-means.txt" (vec c)))
+    (= (first args) "par")
+      (let [c (profile :info :Arithmetic (k-means-p (vector/make-list-rand 500000) 5 100)) => "Done"]
+        (spit "k-means.txt" (vec c))))
+  (shutdown-agents))
