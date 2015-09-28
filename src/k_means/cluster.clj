@@ -2,7 +2,8 @@
   "Clustering related methods"
   (:gen-class)
   (:require [taoensso.timbre.profiling :as profiling :refer (p profile)])
-  (:require [k-means.vector :as vector]))
+  (:require [k-means.vector :as vector]
+            [clojure.core.reducers :as reducers]))
 
 (defn mean-2dvec
   [^ints v]
@@ -28,12 +29,12 @@
 (defn mean-centroids-p
   "Calculates the mean for a given centroid"
   [g]
-  (pmap #(p :mean-2dvec (mean-2dvec %)) g))
+  (map #(p :mean-2dvec (mean-2dvec %)) g))
 
 (defn distance
   "Implements euclidian distance between two vectors"
   ([^ints c1 ^ints c2]
-    (->> (map - c1 c2) (map #(* % %)) (reduce +))))
+    (->> (map - c1 c2) (map #(* % %)) (reducers/fold +))))
 
 (defn min-index
   [c]
@@ -59,21 +60,6 @@
       :else
       a)))
 
-(defn cluster-m
-  "take a list of vectors and cluster on centroids c via distance"
-  ([l c] (cluster-m l c (vector/make-list (count c))))
-  ([l c a]
-    (cond
-      (empty? l) a
-      ; otherwise we continue until the list of vectors is empty
-      (not-empty l)
-        ; for the vector at the start of the list, choose a centroid which is closest
-        (let [i (min-index (p :min-distance (min-distance c (first l))))]
-          ; append the vector to the smallest distance
-          (recur (rest l) c (assoc a i (conj (nth a i) (first l)))))
-      :else
-      a)))
-
 (defn group-clusters
   "group a list of cluster groups into one cluster group"
   ([^ints l] (group-clusters l (vector/make-list (count l))))
@@ -81,10 +67,10 @@
     (cond
       (empty? l) a
       :else
-        (recur (rest l) (map into (first l) a)))))
+        (recur (rest l) (pmap into (first l) a)))))
 
 (defn cluster-p
   "take a list of vectors and cluster on centroids c via distance in parallel"
   [^ints l ^floats c]
-    (let [clusters (for [i (partition-all (int (/ (count l) (count c))) l) :let [m (future (p :cluster (cluster-m i c)))]] (deref m))]
+    (let [futures (doall (map #(future (cluster % c)) (partition-all (int (/ (count l) (count c))) l))) clusters (map deref futures)]
       (p :group-clusters (group-clusters clusters))))
