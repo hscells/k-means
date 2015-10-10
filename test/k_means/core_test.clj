@@ -1,11 +1,9 @@
 (ns k-means.core-test
-  (:require [clojure.test :refer :all]
-            [k-means.core :refer :all]))
-
-(deftest mean-test
-  (testing "means"
-    (is (= 2.5 (mean [1 2 3 4])))))
+  (:require [clojure.test     :refer :all]
+            [k-means.cluster  :as cluster]
+            [k-means.vector   :as vector]
+            [k-means.core     :as core]))
 
 (deftest distance-test
   (testing "distance"
-    (is (= 5.0 (distance [2 -1] [-2 2])))))
+    (is (= 25 (cluster/distance [2 -1] [-2 2])))))

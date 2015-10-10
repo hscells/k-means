@@ -36,7 +36,7 @@
   ([l k max-iterations]
     (k-means-p l k (p :choose-initial-centroids (choose-initial-centroids l k)) (vector/make-list k) max-iterations))
   ([l k c g max-iterations]
-    (let [t c g (p :cluster-parallel (cluster/cluster-p l c)) c (p :mean-centroids (cluster/mean-centroids-p g))]
+    (let [t c g (p :cluster-parallel (cluster/cluster-p l c)) c (p :mean-centroids-parallel (cluster/mean-centroids-p g))]
       (println "Iteration" (- 100 max-iterations) c)
       (cond
         (> 0 max-iterations) g

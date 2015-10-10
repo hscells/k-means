@@ -72,5 +72,7 @@
 (defn cluster-p
   "take a list of vectors and cluster on centroids c via distance in parallel"
   [^ints l ^floats c]
+    ; first split the list of observations into chunks and run the sequental cluster algorithm over each chunk
     (let [futures (doall (map #(future (cluster % c)) (partition-all (int (/ (count l) (count c))) l))) clusters (map deref futures)]
+      ; secondly, join each sub-set of clusters into one large set
       (p :group-clusters (group-clusters clusters))))
