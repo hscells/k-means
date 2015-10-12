@@ -24,7 +24,7 @@
     (k-means l k (p :choose-initial-centroids (choose-initial-centroids l k)) (vector/make-vector k) max-iterations))
   ([l k c g max-iterations]
     (let [t c g (p :cluster (cluster/cluster l c)) c (p :mean-centroids (cluster/mean-centroids g))]
-      (println "Iteration" (- 100 max-iterations) c)
+      ; (println "Iteration" (- 100 max-iterations) c)
       (cond
         (> 0 max-iterations) g
         (still-moving? t c) ; Keep shifting centroids until equilibrium
@@ -37,7 +37,7 @@
     (k-means-p l k (p :choose-initial-centroids (choose-initial-centroids l k)) (vector/make-list k) max-iterations))
   ([l k c g max-iterations]
     (let [t c g (p :cluster-parallel (cluster/cluster-p l c)) c (p :mean-centroids-parallel (cluster/mean-centroids-p g))]
-      (println "Iteration" (- 100 max-iterations) c)
+      ; (println "Iteration" (- 100 max-iterations) c)
       (cond
         (> 0 max-iterations) g
         (still-moving? t c) ; Keep shifting centroids until equilibrium
@@ -47,6 +47,7 @@
 (defn -main
   "Main function for k-means"
   [& args]
+  (println cluster/n-cpu)
   (cond
     (= (first args) "seq")
       (let [c (profile :info :Arithmetic (k-means (vector/make-list-rand 500000) 5 100)) => "Done"]
