@@ -1,7 +1,6 @@
 # k-means
 
 Implementation of the k-means clustering algorithm.
-TBT: Parallelisation!
 
 ![cluster](http://i.imgur.com/mr7INW0.png)
 
@@ -9,10 +8,10 @@ TBT: Parallelisation!
 
     $ java -jar k-means-X.Y-standalone.jar
 
-### Bugs
-
-Occasional divide by 0 error (?)
-
+    testseq [k] [n]
+    testpar [k] [n]
+    seq     [k] [datafile]
+    par     [k] [datafile]
 
 ## License
 
