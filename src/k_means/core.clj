@@ -2,7 +2,8 @@
   (:gen-class)
   (:require [taoensso.timbre.profiling :as profiling :refer (p profile)])
   (:require [k-means.cluster :as cluster]
-            [k-means.vector :as vector]))
+            [k-means.vector  :as vector]
+            [clojure.string  :as string]))
 
 
 (defn choose-initial-centroids
@@ -44,15 +45,37 @@
           (recur l k c g (dec max-iterations))
         :else g))))
 
+(def usage
+  (->> ["Concurrent k-means for INB375 at QUT"
+        "Harry Scells 2015"
+        "Usage: k-means [action] [options]"
+        ""
+        "Actions:"
+        "  testseq        Test the sequential algorithm with [k] clusters and [n] points"
+        "  testpar        Test the parallel algorithm with [k] clusters and [n] points"
+        "  seq            Run the sequential algorithm with [k] clusters on [dataset]"
+        "  par            Run the parallel algorithm with [k] clusters on [dataset]"
+        ""
+        "Please refer to the README for more information."]
+       (string/join \newline)))
+
 (defn -main
   "Main function for k-means"
   [& args]
-  (println cluster/n-cpu)
   (cond
+    (not (= 3 (count args))) (println usage)
+    (= (first args) "testseq")
+      (let [c (profile :info :Arithmetic (k-means (vector/make-list-rand (Integer/parseInt (nth args 2))) (Integer/parseInt (second args)) 100)) => "Done"]
+        (spit "k-means.txt" (vec c)))
+    (= (first args) "testpar")
+      (let [c (profile :info :Arithmetic (k-means-p (vector/make-list-rand (Integer/parseInt (nth args 2))) (Integer/parseInt (second args)) 100)) => "Done"]
+        (spit "k-means.txt" (vec c)))
     (= (first args) "seq")
-      (let [c (profile :info :Arithmetic (k-means (vector/make-list-rand 500000) 5 100)) => "Done"]
+      (let [c (profile :info :Arithmetic (k-means (read-string (nth args 2)) (Integer/parseInt (second args)) 100)) => "Done"]
         (spit "k-means.txt" (vec c)))
     (= (first args) "par")
-      (let [c (profile :info :Arithmetic (k-means-p (vector/make-list-rand 500000) 5 100)) => "Done"]
-        (spit "k-means.txt" (vec c))))
+      (let [c (profile :info :Arithmetic (k-means-p (read-string (nth args 2)) (Integer/parseInt (second args)) 100)) => "Done"]
+        (spit "k-means.txt" (vec c)))
+    :else
+      (println usage))
   (shutdown-agents))
