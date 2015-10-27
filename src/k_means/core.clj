@@ -3,6 +3,7 @@
   (:require [taoensso.timbre.profiling :as profiling :refer (p profile)])
   (:require [k-means.cluster :as cluster]
             [k-means.vector  :as vector]
+            [clojure.edn     :as edn]
             [clojure.string  :as string]))
 
 
@@ -71,10 +72,10 @@
       (let [c (profile :info :Arithmetic (k-means-p (vector/make-list-rand (Integer/parseInt (nth args 2))) (Integer/parseInt (second args)) 100)) => "Done"]
         (spit "k-means.txt" (vec c)))
     (= (first args) "seq")
-      (let [c (profile :info :Arithmetic (k-means (read-string (nth args 2)) (Integer/parseInt (second args)) 100)) => "Done"]
+      (let [c (profile :info :Arithmetic (k-means (edn/read-string (slurp (nth args 2))) (Integer/parseInt (second args)) 100)) => "Done"]
         (spit "k-means.txt" (vec c)))
     (= (first args) "par")
-      (let [c (profile :info :Arithmetic (k-means-p (read-string (nth args 2)) (Integer/parseInt (second args)) 100)) => "Done"]
+      (let [c (profile :info :Arithmetic (k-means-p (edn/read-string (slurp (nth args 2))) (Integer/parseInt (second args)) 100)) => "Done"]
         (spit "k-means.txt" (vec c)))
     :else
       (println usage))
