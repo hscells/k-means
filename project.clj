@@ -1,4 +1,4 @@
-(defproject k-means "0.7"
+(defproject k-means "1.0"
   :description "Programming assignment for QUT INB375 - https://github.com/hscells/k-means"
   :url ""
   :license {:name "Eclipse Public License"
